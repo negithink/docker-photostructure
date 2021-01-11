@@ -8,7 +8,7 @@ services:
     stop_grace_period: 2m
 
     # This is the user id and group id you want PhotoStructure to run as:
-    user: 1000:1000 # < CHANGE THIS LINE to userid:groupid you want PhotoStructure to run as
+    user: 0:0 # < CHANGE THIS LINE to userid:groupid you want PhotoStructure to run as
 
     volumes:
       # This is where your PhotoStructure Library will be stored.
