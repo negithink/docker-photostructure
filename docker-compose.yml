@@ -1,0 +1,80 @@
+# https://photostructure.com/server/photostructure-for-docker-compose/
+
+version: '3.7'
+services:
+  photostructure:
+    image: photostructure/server
+    restart: on-failure
+    stop_grace_period: 2m
+
+    # This is the user id and group id you want PhotoStructure to run as:
+    user: 1000:1000 # < CHANGE THIS LINE to userid:groupid you want PhotoStructure to run as
+
+    volumes:
+      # This is where your PhotoStructure Library will be stored.
+      # It must be readable, writable, and have sufficient free space.
+      # If it is a remote volume, uncomment the PS_FORCE_LOCAL_DB_REPLICA
+      # environment line below.
+
+      - type: bind
+        source: '${LIBRARY_DIR}'
+        target: /ps/library
+
+      # This must be fast, local disk with many gigabytes free.
+      # PhotoStructure will use this directory for file caching
+      # and for storing a temporary database replica when your
+      # library is on a remote volume.
+
+      - type: bind
+        source: './.cache/photostructure'
+        target: /ps/tmp
+
+      # This directory stores your "system settings"
+
+      - type: bind
+        source: './.config/PhotoStructure-docker'
+        target: /ps/config
+
+      # This directory stores PhotoStructure logfiles.
+
+      - type: bind
+        source: './.config/PhotoStructure/logs'
+        target: /ps/logs
+
+      # Example additional directories to import into your library.
+      # Add as many as you'd like, or remove one or both of these examples.
+
+      # Set the target to /media/... or /mnt/...
+      # (the name doesn't matter, as long as it is unique)
+
+      - type: bind
+        source: '${HOST_MEDIA_DIR}'
+        target: /var/host/media
+
+      # Here's another example directory to scan:
+      # - type: bind
+      #   source: /home/jamie/Pictures
+      #   target: /var/home-jamie-pictures
+
+    ports:
+      - 1787:1787/tcp
+
+    environment:
+      # PhotoStructure has _tons_ of settings. See
+      # <https://photostructure.com/faq/environment-variables/>
+
+      # This tells PhotoStructure to only log errors, which is the default:
+      - 'PS_LOG_LEVEL=error'
+
+    labels:
+      # See https://containrrr.dev/watchtower/container-selection/
+      - 'com.centurylinklabs.watchtower.enable=true'
+
+  watchtower:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    # Check for updates every couple hours: (3h * 60m * 60s)
+    command: --interval 10800
+    environment:
+      - 'WATCHTOWER_LABEL_ENABLE=true'
