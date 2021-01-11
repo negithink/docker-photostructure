@@ -1,6 +1,2 @@
-.config/PhotoStructure/logs/*
-.config/PhotoStructure-docker/*
-.cache/PhotoStructure/*
-
 .env
 local_test/
